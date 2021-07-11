@@ -11,6 +11,7 @@ using osu.Framework.Input.Bindings;
 using osu.Game.Rulesets.Judgements;
 using osu.Game.Rulesets.Objects;
 using osu.Game.Rulesets.Objects.Drawables;
+using osu.Game.Rulesets.Rush.Input;
 using osu.Game.Rulesets.Rush.Judgements;
 using osu.Game.Rulesets.Rush.Objects;
 using osu.Game.Rulesets.Rush.Objects.Drawables;
@@ -22,8 +23,10 @@ using osuTK;
 namespace osu.Game.Rulesets.Rush.UI
 {
     [Cached]
-    public class RushPlayfield : ScrollingPlayfield, IKeyBindingHandler<RushAction>
+    public class RushPlayfield : ScrollingPlayfield, IKeyBindingHandler<RushAction>, IKeyBindingTouchHandler
     {
+        public override bool HandlePositionalInput => true;
+
         public const float DEFAULT_HEIGHT = 178;
         public const float HIT_TARGET_OFFSET = 240;
         public const float HIT_TARGET_SIZE = 100;
@@ -40,6 +43,8 @@ namespace osu.Game.Rulesets.Rush.UI
 
         private readonly LanePlayfield airLane;
         private readonly LanePlayfield groundLane;
+
+        public override bool ReceivePositionalInputAt(Vector2 screenSpacePos) => true;
 
         public IEnumerable<DrawableHitObject> AllAliveHitObjects
         {
@@ -228,6 +233,14 @@ namespace osu.Game.Rulesets.Rush.UI
 
         public void OnReleased(RushAction action)
         {
+        }
+
+        public RushActionTarget ActionTargetForTouchPosition(Vector2 screenSpaceTouchPosition)
+        {
+            if (screenSpaceTouchPosition.Y < ScreenSpaceDrawQuad.Centre.Y)
+                return RushActionTarget.Air;
+
+            return RushActionTarget.Ground;
         }
     }
 }
